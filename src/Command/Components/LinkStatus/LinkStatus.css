@@ -1,0 +1,32 @@
+.link-status div:nth-child(even) {
+  background-color: var(--color-background-surface-default);
+  padding-block: var(--spacing-1);
+  padding-inline: var(--spacing-2);
+  margin-top: var(--spacing-2);
+}
+
+.link-status div:nth-child(odd) {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-style: italic;
+  text-align: right;
+  padding-block: var(--spacing-1);
+  padding-inline: var(--spacing-2);
+  background-color: var(--color-background-base-header);
+}
+
+.link-status span {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.link-status::part(body) {
+  background-color: var(--color-background-base-default);
+  display: flex;
+  overflow: auto;
+  height: 100%;
+}
+
+.total {
+  margin-left: auto;
+}

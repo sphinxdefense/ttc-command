@@ -1,0 +1,48 @@
+/* Mnemonic List Item Styles */
+
+.pass-plan_mnemonic-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.pass-plan_mnemonic-wrapper rux-checkbox {
+  padding-inline-end: var(--spacing-4);
+}
+
+.pass-plan_mnemonic-watching {
+  display: flex;
+  align-items: center;
+  margin-inline-start: auto;
+}
+
+.pass-plan_mnemonic-watching rux-icon {
+  padding-inline: var(--spacing-1);
+  color: var(--color-text-primary);
+}
+
+/* Executable List Item Styles */
+
+.pass-plan_executable-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.pass-plan_executable-progress-wrapper {
+  padding-inline: var(--spacing-2);
+  width: 100%;
+}
+
+.pass-plan_executable-wrapper rux-progress {
+  width: 100%;
+  padding-inline-end: var(--spacing-2);
+}
+
+.pass-plan_progress-time {
+  display: flex;
+  align-items: center;
+}
+
+.pass-plan_progress-time rux-icon {
+  padding-inline-end: var(--spacing-1);
+  color: var(--color-text-primary);
+}
