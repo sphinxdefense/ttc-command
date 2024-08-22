@@ -1,32 +1,33 @@
 import { RuxContainer, RuxOption, RuxSelect } from "@astrouxds/react";
 import "./PassPlan.css";
-import commands from "../../../utils/commands.json";
+//import commands from "../../../utils/commands.json";
 import SearchCommands from "./SearchCommands/SearchCommands";
 import { useEffect, useState } from "react";
 import PrePassList from "./PrePassList/PrePassList";
 import PassList from "./PassList/PassList";
 import { useAppContext, ContextType } from "provider/useAppContext";
 import PrePassComplete from "./PrePassComplete/PrePassComplete";
-import { Mnemonic } from "../../../Data";
+import { Command, Mnemonic } from "../../../Data";
 import { RuxSelectCustomEvent } from "@astrouxds/astro-web-components";
 import { addToast } from "utils";
 
 const PassPlan = () => {
   const [command, setCommand] = useState<object>({});
-  const [pass, setPass] = useState<string>("Pre-Pass");
-  const [commandList, setCommandList] = useState<string[]>([]);
+  const [pass, setPass] = useState<string>("Pass");
+  const [commandList, setCommandList] = useState<Command[]>([]);
   const [countdown, setCountdown] = useState<number>(4);
   const { contact }: ContextType = useAppContext();
   const passPlanMnemonics: Mnemonic[] = contact.mnemonics.slice(0, 100);
   let countdownFormat: string = `00:00:0${countdown}`;
-
+  
   const addToPassQueue = (commandListItem: {
     commandId: number;
     commandString: string;
     description: string;
   }) => {
     if (!commandListItem) return;
-    setCommandList([...commandList, commandListItem.commandString]);
+    console.log(commandList,commandListItem.commandString)
+    setCommandList([...commandList, commandListItem]);
   };
 
   const handlePassModeSelect = (e: RuxSelectCustomEvent<void>) => {
@@ -86,11 +87,11 @@ const PassPlan = () => {
       ) : pass === "Pre-Pass-Complete" ? (
         <PrePassComplete />
       ) : (
-        <PassList commandList={commandList} mnemonics={passPlanMnemonics} />
+        <PassList commandList={commandList} />
       )}
       <div slot="footer">
         <SearchCommands
-          commands={commands}
+          commands={contact.commands || []}
           setCommand={setCommand}
           command={command}
           addToPassQueue={addToPassQueue}

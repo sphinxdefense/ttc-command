@@ -3,3 +3,4 @@ export * from './contacts';
 export * from './subsystems';
 export * from './mnemonic';
 export * from './util';
+export * from './command';

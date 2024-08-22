@@ -35,8 +35,6 @@ const options: ContactsServiceOptions = {
     },
   },
 };
-document.cookie = "sid=46912842247472";
-console.log(document.cookie);
 root.render(
   <React.StrictMode>
     <TTCGRMProvider options={options}>

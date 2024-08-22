@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import MnemonicListItem from "../MnemonicListItem/MnemonicListItem";
 import { generateRandomNumberArray, getRandomInt } from "../../../../../utils";
 import { Mnemonic } from "../../../../../Data";
+import { useAppContext, ContextType } from "provider/useAppContext";
 
 type PropTypes = {
   stepNumber: number | string;
@@ -22,6 +23,7 @@ const ExecutableListItem = ({
     return generateRandomNumberArray(getRandomInt(2, 5));
   }, []);
 
+  const { contact }: ContextType = useAppContext();
   useEffect(() => {
     let interval: any;
     if (inProgress) {
@@ -42,6 +44,16 @@ const ExecutableListItem = ({
 
   const handleExecuteButtonClick = () => {
     setInProgress((prevState) => !prevState);
+    const data = new FormData();
+    document.cookie = `sid=${contact.cookie}`
+    console.log(contact.cookie)
+    data.append("command", queueCommand);
+    console.log(data)
+    fetch('http://localhost:8001/cmd', {
+      method: 'POST',
+      credentials: 'include',
+      body: data
+    }).catch((err) => {}).then(res => setInProgress((prevState) => !prevState)).catch((err) => {})
   };
 
   return (
@@ -69,12 +81,12 @@ const ExecutableListItem = ({
           </div>
         </div>
       </div>
-      {numberArray.map((item, index) => (
+      {mnemonics.map((item, index) => (
         <MnemonicListItem
           key={index}
           stepNumber={`${stepNumber}.${index + 1}`}
           slotNode={true}
-          mnemonic={mnemonics[item]}
+          mnemonic={item}
         />
       ))}
     </RuxTreeNode>
