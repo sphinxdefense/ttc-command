@@ -28,7 +28,7 @@ const generateChartData = () =>
 
 const Watcher = () => {
   const { contact }: ContextType = useAppContext();
-  const watchedMnemonics = contact.mnemonics.filter(
+  const watchedMnemonics = Array.from(contact.mnemonic_id_lookup.values()).filter(
     (mnemonic) => mnemonic.watched
   );
 

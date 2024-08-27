@@ -20,7 +20,7 @@ type ChildSubsystemNoMnemonics = {
   name: string;
   status: string;
   subsystemParent: string;
-  assemblyDevices: Omit<AssemblyDevice, "mnemonics">[];
+  assemblyDevices: Omit<AssemblyDevice, "mnemoicIdMap">[];
 };
 
 const Assembly = () => {

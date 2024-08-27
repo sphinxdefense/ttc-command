@@ -2,6 +2,8 @@ import { RuxContainer, RuxStatus } from "@astrouxds/react";
 import { getRandomInt } from "utils";
 import "./LinkStatus.css";
 import { Status } from "../../../Data";
+import { useEffect, useState } from "react";
+import { useAppContext, ContextType } from "provider/useAppContext";
 
 const statusValuesArr: Status[] = [
   "off",
@@ -27,6 +29,17 @@ const int5 = getRandomInt(1000, 9999);
 const int6 = getRandomInt(0, 5);
 
 const LinkStatus = () => {
+  const { contact }: ContextType = useAppContext();
+  const [frameCount, setFrameCount] = useState<number>(0);
+  const [mnemonicCount, setMnemonicCount] = useState<number>(0);
+
+  useEffect(() => {
+    setFrameCount(contact.frame_count || 0)
+  }, [contact.frame_count]);
+
+  useEffect(() => {
+    setMnemonicCount(contact.mnemonic_count || 0)
+  }, [contact.mnemonic_count]);
   return (
     <RuxContainer className="link-status">
       <span slot="header">Link Status</span>
@@ -41,10 +54,10 @@ const LinkStatus = () => {
       <div>
         <span>
           <RuxStatus status={status2} />
-          Telemetry<span className="total">{int3}</span>
+          Telemetry<span className="total">{frameCount}</span>
         </span>
       </div>
-      <div>Total Frame Count: {int4}</div>
+      <div>Total Mnemonic Count: {mnemonicCount}</div>
       <div>
         <span>
           <RuxStatus status={status3} />

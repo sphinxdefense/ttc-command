@@ -20,10 +20,12 @@ import type {
   StructuredData,
   AITMnemonics,
   //ModifyMnemonicParamsNoLookup,
-  ModifyMnemonicParams
+  ModifyMnemonicParams,
+  Subsystem,
+  MnemonicIdMap
 } from '../types';
 import * as _ from 'lodash';
-import { updateSubsystemWithMnemonic, getSubsystemMnemonics, findMnemonicById } from '../utils';
+import { updateSubsystemWithMnemonic} from '../utils';
 //import { useAppContext } from "../../provider/useAppContext";
 
 
@@ -60,25 +62,30 @@ export class TTC_GRM_Service {
     this._tlm_skt.addEventListener("message", event => {
       let api_mnemonic: AITMnemonics = JSON.parse(event.data);
       let mnemonic: Mnemonic | null | undefined = null
+      let modified_mnemonics: Mnemonic[] = []; 
+      const currentContact = this._data.contacts.get(this._contact_id);
+      if (!currentContact)
+        return
       for (const [key, value] of Object.entries(api_mnemonic.data)) {
-        if (api_contact_array.length > 0){ //TODO: assume one contact for now
-          if (api_contact_array[0].mnemonic_id_lookup){
-            mnemonic = api_contact_array[0].mnemonic_id_lookup[api_mnemonic.packet + '_' + key]
+          if (currentContact.mnemonic_id_lookup){
+            mnemonic = currentContact.mnemonic_id_lookup.get(api_mnemonic.packet + '_' + key)
           }
           if (mnemonic != null){
             if (mnemonic.currentValue != value){
-              let new_mnemonic: Mnemonic = this.modifyMnemonicNoLookup({
+              let new_mnemonic: Mnemonic =  {
                 ...mnemonic,
-                currentValue: value,
-                contactRefId: this._contact_id,
-              })
-              if (api_contact_array[0].mnemonic_id_lookup){
-                api_contact_array[0].mnemonic_id_lookup[api_mnemonic.packet + '_' + key] =  new_mnemonic
-              }
+                currentValue: value
+              };
+              modified_mnemonics.push(new_mnemonic)
             }
           }
-        }
       }
+      this.modifyMnemonicsNoLookup(
+        this._contact_id,
+        modified_mnemonics,
+        1,
+        Object.keys(api_mnemonic.data).length
+      )
     });
     if (options?.initial && this._data.contacts.size === 0) {
       this._generateInitialData(options.initial,api_contact_array);
@@ -102,7 +109,7 @@ export class TTC_GRM_Service {
     const allContacts = Array.from(this._data.contacts.values());
     const alertsArray = allContacts.flatMap((contact) => contact.alerts);
     alertsArray.forEach((alert) => newAlerts.set(alert.id, alert));
-    const mnemonicsArray = allContacts.flatMap((contact) => contact.mnemonics);
+    const mnemonicsArray = allContacts.flatMap((contact) => Array.from(contact.mnemonic_id_lookup.values()));
     mnemonicsArray.forEach((mnemonic) =>
       newMnemonics.set(mnemonic.id, mnemonic),
     );
@@ -194,9 +201,10 @@ export class TTC_GRM_Service {
     const currentContact = this._data.contacts.get(contactId);
     if (!currentContact)
       throw new Error(`Contact with id ${contactId} does not exist`);
+    currentContact.mnemonic_id_lookup.set(newMnemonic.id,newMnemonic)
     this.modifyContact({
       id: contactId,
-      mnemonics: [...currentContact.mnemonics, newMnemonic],
+      mnemonic_id_lookup: currentContact.mnemonic_id_lookup
     });
     return newMnemonic;
   };
@@ -206,9 +214,9 @@ export class TTC_GRM_Service {
     if (!currentContact)
       throw new Error(`Contact with id ${params.id} does not exist`);
     const modifiedContact = { ...currentContact, ...params };
-    if (params.subsystems) {
-      modifiedContact.mnemonics = getSubsystemMnemonics(params.subsystems);
-    }
+    // if (params.subsystems) {
+    //   modifiedContact.mnemonics = getSubsystemMnemonics(params.subsystems);
+    // }
 
     this._data.contacts.set(params.id, modifiedContact);
     this._publish();
@@ -232,31 +240,79 @@ export class TTC_GRM_Service {
     return modifiedAlert;
   };
 
-  public modifyMnemonicNoLookup = (update_mnemonic: Mnemonic): Mnemonic => {
-    const currentContact = this._data.contacts.get(update_mnemonic.contactRefId);
+  public modifyMnemonicsNoLookup = (ref_id: string, update_mnemonics: Mnemonic[], frame_count?: number,mnemonic_count?: number, mod_val: number= Number.MAX_SAFE_INTEGER): void => {
+    const currentContact = structuredClone(this._data.contacts.get(ref_id));
     if (!currentContact)
-      throw new Error(`Contact with id ${update_mnemonic.contactRefId} does not exist`);
+      throw new Error(`Contact with id ${ref_id} does not exist`);
+    let subsystems: Subsystem[] = structuredClone(currentContact.subsystems)
+    let all_mnemonics_lookup: MnemonicIdMap | undefined = structuredClone(currentContact.mnemonic_id_lookup)
 
-    const modifiedMnemonic = {
-      ...update_mnemonic,
-    };
-    // if (currentContact.mnemonic_id_lookup){
-    //   console.log("update mnemonic id lookup")
-    //   currentContact.mnemonic_id_lookup[modifiedMnemonic.id] = modifiedMnemonic
-    // }
-   
+    update_mnemonics.forEach((mnemonic) => {
+      if(all_mnemonics_lookup){
+        all_mnemonics_lookup.set(mnemonic.id, mnemonic)
+      }
+      subsystems.forEach((subsystem) => {
+        subsystem.childSubsystems.forEach((childSubSystem) => {
+          childSubSystem.assemblyDevices.forEach((assemblyDevice) => {
+              if(assemblyDevice.mnemoicIdMap.get(mnemonic.id)){
+                //console.log("update mnemonic")
+                assemblyDevice.mnemoicIdMap.set(mnemonic.id,mnemonic)
+              }
+              
+          })
+        })
+      }) 
+    })
+    if (frame_count && mnemonic_count){
+      this.modifyContact({
+        id: currentContact.id,
+        subsystems: subsystems,
+        mnemonic_id_lookup: all_mnemonics_lookup,
+        frame_count: ((currentContact.frame_count || 0) + frame_count) % mod_val,
+        mnemonic_count: ((currentContact.mnemonic_count || 0) + mnemonic_count) & mod_val,
+      });
+    }
+    else{
+      this.modifyContact({
+        id: currentContact.id,
+        subsystems: subsystems,
+        mnemonic_id_lookup: all_mnemonics_lookup
+      });
+    }
 
-    const modifiedSubsystems = updateSubsystemWithMnemonic(
-      currentContact,
-      modifiedMnemonic,
-    );
 
-    this.modifyContact({
-      id: currentContact.id,
-      subsystems: modifiedSubsystems,
-    });
-    return modifiedMnemonic;
   };
+
+
+  // public modifyMnemonicNoLookup = (update_mnemonic: Mnemonic): Contact => {
+  //   const currentContact = this._data.contacts.get(update_mnemonic.contactRefId);
+  //   if (!currentContact)
+  //     throw new Error(`Contact with id ${update_mnemonic.contactRefId} does not exist`);
+  //   //console.log(update_mnemonic.watched)
+  //   const modifiedMnemonic = {
+  //     ...update_mnemonic,
+  //   };
+  //   if (currentContact.mnemonic_id_lookup){
+  //     currentContact.mnemonic_id_lookup[update_mnemonic.mnemonicId] = modifiedMnemonic
+  //   }
+  //   //currentContact?.mnemonic_id_lookup?[update_mnemonic.mnemonicId] =  modifiedMnemonic
+   
+  //   const modifiedSubsystems = updateSubsystemWithMnemonic(
+  //     currentContact,
+  //     modifiedMnemonic,
+  //   );
+  //   const modifiedContact = { 
+  //     ...currentContact, 
+  //     subsystems: modifiedSubsystems,
+  //     mnemonic_id_lookup: currentContact.mnemonic_id_lookup
+  //   };
+
+  //   // this.modifyContact({
+  //   //   id: currentContact.id,
+  //   //   subsystems: modifiedSubsystems,
+  //   // });
+  //   return modifiedContact;
+  // };
 
 
   public modifyMnemonic = (params: ModifyMnemonicParams): Mnemonic => {
@@ -264,14 +320,16 @@ export class TTC_GRM_Service {
     if (!currentContact)
       throw new Error(`Contact with id ${params.contactRefId} does not exist`);
 
-    const mnemonicIndex = currentContact?.mnemonics.findIndex(
-      (mnemonic) => mnemonic.id === params.id,
-    );
+    const currentMnemonic: Mnemonic | undefined = currentContact.mnemonic_id_lookup.get(params.id)
+    if (!currentMnemonic)
+      throw new Error(`Mnemonic with id ${params.id} does not exist`);
 
     const modifiedMnemonic = {
-      ...currentContact.mnemonics[mnemonicIndex],
+      ...currentMnemonic,
       ...params,
     };
+    let all_mnemonics_lookup: MnemonicIdMap | undefined = structuredClone(currentContact.mnemonic_id_lookup)
+    all_mnemonics_lookup.set(params.id,modifiedMnemonic)
 
     const modifiedSubsystems = updateSubsystemWithMnemonic(
       currentContact,
@@ -281,6 +339,8 @@ export class TTC_GRM_Service {
     this.modifyContact({
       id: currentContact.id,
       subsystems: modifiedSubsystems,
+      mnemonic_id_lookup: all_mnemonics_lookup,
+
     });
     return modifiedMnemonic;
   };
@@ -293,9 +353,9 @@ export class TTC_GRM_Service {
   ): string => {
     this._data.contacts.forEach((contact: Contact, contactId: string) => {
       const modifiedContact = { ...contact, ...params };
-      if (params.subsystems) {
-        modifiedContact.mnemonics = getSubsystemMnemonics(params.subsystems);
-      }
+      // if (params.subsystems) {
+      //   modifiedContact.mnemonics = getSubsystemMnemonics(params.subsystems);
+      // }
       this._data.contacts.set(contactId, modifiedContact);
     });
     this._publish();
@@ -356,11 +416,13 @@ export class TTC_GRM_Service {
     const currentContact = this._data.contacts.get(contactRefId);
     if (!currentContact)
       return `Contact with id ${contactRefId} does not exist`;
-    const modifiedMnemonics = currentContact.mnemonics.filter(
-      (mnemonic) => mnemonic.id !== mnemonicId,
-    );
+    let all_mnemonics_lookup: MnemonicIdMap | undefined = structuredClone(currentContact.mnemonic_id_lookup)
+    // const modifiedMnemonics = currentContact.mnemonic_id_lookup.filter(
+    //   (mnemonic) => mnemonic.id !== mnemonicId,
+    // );
+    all_mnemonics_lookup.delete(mnemonicId)
 
-    this.modifyContact({ id: currentContact.id, mnemonics: modifiedMnemonics });
+    this.modifyContact({ id: currentContact.id, mnemonic_id_lookup: all_mnemonics_lookup });
 
     return `Successfully deleted mnemonic: ${mnemonicId}`;
   };
@@ -392,22 +454,22 @@ export class TTC_GRM_Service {
     this._publish();
     return `Successfully deleted all alerts with ${property} of ${value}`;
   };
-  public deleteMnemonicsWithProp = (
-    property: keyof Mnemonic,
-    value: Mnemonic[keyof Mnemonic],
-  ): string => {
-    this._data.contacts.forEach((contact: Contact, contactId: string) => {
-      const filteredMnemonics = contact.mnemonics.filter(
-        (mnemonic) => mnemonic[property] !== value,
-      );
-      this._data.contacts.set(contactId, {
-        ...contact,
-        mnemonics: filteredMnemonics,
-      });
-    });
-    this._publish();
-    return `Successfully deleted all mnemonics with ${property} of ${value}`;
-  };
+  // public deleteMnemonicsWithProp = (
+  //   property: keyof Mnemonic,
+  //   value: Mnemonic[keyof Mnemonic],
+  // ): string => {
+  //   this._data.contacts.forEach((contact: Contact, contactId: string) => {
+  //     const filteredMnemonics = contact.mnemonics.filter(
+  //       (mnemonic) => mnemonic[property] !== value,
+  //     );
+  //     this._data.contacts.set(contactId, {
+  //       ...contact,
+  //       mnemonics: filteredMnemonics,
+  //     });
+  //   });
+  //   this._publish();
+  //   return `Successfully deleted all mnemonics with ${property} of ${value}`;
+  // };
 
   public allContactsHaveProp = (
     property: keyof Contact,

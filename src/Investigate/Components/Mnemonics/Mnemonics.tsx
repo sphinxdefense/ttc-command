@@ -34,16 +34,16 @@ const Mnemonics = ({ title }: PropTypes) => {
   const [sortProp, setSortProp] = useState("");
   const [filterValue, setFilterValue] = useState("All");
 
-  const filteredMnemonicIds = selectedAssemblyDevice.mnemonics.filter((value) =>
+  const filteredMnemonicIds = Array.from(selectedAssemblyDevice.mnemoicIdMap.values()).filter((value: any) =>
     value.mnemonicId.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   const filteredMnemonicStatus =
     filterValue === "Critical"
-      ? filteredMnemonicIds.filter((val) => val.status === "critical")
+      ? filteredMnemonicIds.filter((val: any) => val.status === "critical")
       : filterValue === "Marginal"
       ? filteredMnemonicIds.filter(
-          (val) => val.status === "caution" || val.status === "serious"
+          (val: any) => val.status === "caution" || val.status === "serious"
         )
       : filteredMnemonicIds;
 
@@ -92,7 +92,7 @@ const Mnemonics = ({ title }: PropTypes) => {
   };
 
   const numOfWatchedMnemonics = filteredMnemonicStatus.filter(
-    (mnemonic) => mnemonic.watched
+    (mnemonic: Mnemonic) => mnemonic.watched
   ).length;
 
   return (

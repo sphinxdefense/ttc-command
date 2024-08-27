@@ -11,7 +11,7 @@ import LineChart from "../../../Watcher/LineChart";
 import { getRandomInt } from "utils";
 import { useAppContext, ContextType } from "provider/useAppContext";
 import "./MnemonicPopUp.css";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 
 type PropTypes = {
   triggerValue: string | number;
@@ -20,22 +20,23 @@ type PropTypes = {
 
 const MnemonicPopUp = ({ triggerValue, data }: PropTypes) => {
   const { modifyMnemonic } = useTTCGRMActions();
+  const [menmonicData, setMenmonicData] = useState<Array<any>>([0]);
 
   const { toggleInvestigate, selectSubsystemsFromMnemonic }: ContextType =
     useAppContext();
 
-  const menmonicData = useMemo(
-    () => [
-      getRandomInt(110),
-      getRandomInt(110),
-      getRandomInt(110),
-      data.currentValue,
-      getRandomInt(110),
-      getRandomInt(110),
-      getRandomInt(110),
-    ],
-    [data.currentValue]
-  );
+  // const menmonicData = useMemo(
+  //   () => [
+  //     data.currentValue,
+  //   ],
+  //   [data.currentValue]
+  // );
+
+  useEffect(() => {
+    setMenmonicData([...menmonicData,data.currentValue])
+
+  }, [data.currentValue]);
+  //console.log(menmonicData)
 
   const handleSubsystemPassPlanClick = () => {
     selectSubsystemsFromMnemonic(data);
@@ -50,7 +51,7 @@ const MnemonicPopUp = ({ triggerValue, data }: PropTypes) => {
     <RuxPopUp placement="right" strategy="fixed" className="mnemonic-pop-up">
       <RuxCard>
         <span slot="header">{data.mnemonicId}</span>
-        {/* {<LineChart chartData={menmonicData} />} FIXME */} 
+        {<LineChart chartData={menmonicData || [0]} />} 
         <div>
           <span>Value:</span>
           <span>

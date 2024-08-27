@@ -17,7 +17,7 @@ const PassPlan = () => {
   const [commandList, setCommandList] = useState<Command[]>([]);
   const [countdown, setCountdown] = useState<number>(4);
   const { contact }: ContextType = useAppContext();
-  const passPlanMnemonics: Mnemonic[] = contact.mnemonics.slice(0, 100);
+  const passPlanMnemonics: Mnemonic[] = Array.from(contact.mnemonic_id_lookup.values()).slice(0, 100);
   let countdownFormat: string = `00:00:0${countdown}`;
   
   const addToPassQueue = (commandListItem: {
@@ -26,7 +26,7 @@ const PassPlan = () => {
     description: string;
   }) => {
     if (!commandListItem) return;
-    console.log(commandList,commandListItem.commandString)
+    //console.log(commandList,commandListItem.commandString)
     setCommandList([...commandList, commandListItem]);
   };
 

@@ -53,21 +53,4 @@ export type AITMnemonics = {
 export type ModifyMnemonicParams = AtLeast<Mnemonic, 'id' | 'contactRefId'>;
 export type ModifyMnemonicParamsNoLookup = Mnemonic;
 
-// interface modifyMnemonicOverload {
-//   (arg: ModifyMnemonicParams): Mnemonic;
-//   (arg: ModifyMnemonicParamsNoLookup): Mnemonic;
-// }
-
-// export interface modifyMnemonicInterface {
-//   f: modifyMnemonicOverload;
-// }
-
-
-export type MnemonicMap = {
-  [key: string]: {
-      [key: string]: Mnemonic
-  }
-}
-export type MnemonicIdMap = {
-  [key: string]: Mnemonic
-}
+export type MnemonicIdMap = Map<string,Mnemonic>

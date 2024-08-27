@@ -128,7 +128,7 @@ export const getSubsystemMnemonics = (subsystems: Subsystem[]): Mnemonic[] => {
   subsystems.forEach((subsystem) => {
     subsystem.childSubsystems.forEach((childSubsystem) => {
       childSubsystem.assemblyDevices.forEach((assemblyDevices) => {
-        subsystemsMnemonics.push(...assemblyDevices.mnemonics);
+        subsystemsMnemonics.push(...Object.values(assemblyDevices.mnemoicIdMap));
       });
     });
   });
@@ -141,7 +141,7 @@ export const updateSubsystemWithMnemonic = (
   params: ModifyMnemonicParams,
 ) => {
   const updateMnemonicOnSubsystem = (value: any) => {
-    //console.log(value)
+
     if (value.id === params.id) {
       return { ...value, ...params };
     }
@@ -150,6 +150,7 @@ export const updateSubsystemWithMnemonic = (
     currentContact.subsystems,
     updateMnemonicOnSubsystem,
   );
+  //console.log(modifiedSubsystems.length)
   return modifiedSubsystems;
 };
 

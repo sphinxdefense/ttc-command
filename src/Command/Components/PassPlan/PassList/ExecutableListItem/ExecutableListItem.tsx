@@ -18,6 +18,8 @@ const ExecutableListItem = ({
 }: PropTypes) => {
   const [value, setValue] = useState<number>(0);
   const [inProgress, setInProgress] = useState<boolean>(false);
+  const [firstClick, setFirstClick] = useState<boolean>(false);
+  const timeout: number = 20
   const progressComplete: boolean = value >= 100;
   const numberArray = useMemo(() => {
     return generateRandomNumberArray(getRandomInt(2, 5));
@@ -34,26 +36,32 @@ const ExecutableListItem = ({
           }
           return prevValue + 1;
         });
-      }, 50);
+      }, 1000 / timeout);
     } else {
-      clearInterval(interval);
+      if (!firstClick){
+        clearInterval(interval);
+        setFirstClick(true)
+      }
+      else{
+        setValue(100)
+      }
     }
 
     return () => clearInterval(interval);
   }, [inProgress]);
 
   const handleExecuteButtonClick = () => {
-    setInProgress((prevState) => !prevState);
+    setInProgress(true);
     const data = new FormData();
     document.cookie = `sid=${contact.cookie}`
     console.log(contact.cookie)
     data.append("command", queueCommand);
     console.log(data)
-    fetch('http://localhost:8001/cmd', {
+    fetch('http://localhost:8001/cmd', {  // FIXME: hardcoded url and CORS
       method: 'POST',
       credentials: 'include',
       body: data
-    }).catch((err) => {}).then(res => setInProgress((prevState) => !prevState)).catch((err) => {})
+    }).catch((err) => {}).then(res => setInProgress(false)).catch((err) => {})
   };
 
   return (
@@ -77,7 +85,7 @@ const ExecutableListItem = ({
           <div className="pass-plan_progress-time">
             <RuxProgress value={value} hideLabel />
             <RuxIcon icon="schedule" size="extra-small" />
-            00:00:25
+            {`00:00:${timeout}`}
           </div>
         </div>
       </div>

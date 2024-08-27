@@ -11,7 +11,7 @@ import {
   AtLeast,
 } from './util';
 import type { SubsystemOptions } from './subsystems';
-import type { MnemonicMap, MnemonicIdMap, Command } from '../types';
+import type { Command } from '../types';
 
 export type ContactsMap = Map<string, Contact>;
 
@@ -54,10 +54,11 @@ export type Contact = {
   mode: Mode;
   selected: boolean;
   alerts: Alert[];
-  mnemonics: Mnemonic[];
-  mnemonic_id_lookup?: MnemonicIdMap;
+  mnemonic_id_lookup: Map<string,Mnemonic>;
   commands?: Command[]
   cookie?: number | string;
+  frame_count?: number;
+  mnemonic_count?: number;
 };
 
 export type ModifyContactParams = AtLeast<Contact, 'id'>;

@@ -1,4 +1,5 @@
-import { Status, Mnemonic, MnemonicOptions } from './index';
+import { Status, MnemonicOptions } from './index';
+import type { MnemonicIdMap } from '../types';
 
 export type Subsystem = {
   name: string;
@@ -17,7 +18,7 @@ export type AssemblyDevice = {
   name: string;
   status: Status;
   childSubsystemParent: string;
-  mnemonics: Mnemonic[];
+  mnemoicIdMap: MnemonicIdMap;
 };
 
 export type AssemblyDeviceOptions = {
