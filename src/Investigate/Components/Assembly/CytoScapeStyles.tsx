@@ -15,6 +15,7 @@ import light from "@astrouxds/tokens/dist/json-nested/theme.light.json";
 
 type ElementObject = {
   status: string;
+  name: string;
   label: string;
 };
 
@@ -34,7 +35,7 @@ export const cytoscapeTheme = (lightTheme: boolean) => {
     return statusColor[status as keyof typeof statusColor] || statusColor.off;
   };
 
-  const getBackground = ({ label }: ElementObject) => {
+  const getBackground = ({ name, label }: ElementObject) => {
     return backgroundImg[label as keyof typeof backgroundImg] || Default;
   };
 
@@ -97,9 +98,9 @@ export const cytoscapeTheme = (lightTheme: boolean) => {
     },
     //label text
     {
-      selector: "node[label]",
+      selector: "node[name]",
       css: {
-        label: "data(label)",
+        label: "data(name)",
         "font-size": "16",
         color: theme.color.text.primary,
         "text-halign": "center",

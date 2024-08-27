@@ -44,6 +44,7 @@ const Assembly = () => {
             name: device.name,
             status: device.status,
             childSubsystemParent: device.childSubsystemParent,
+            label: device.label
           })),
         ],
       }
@@ -61,10 +62,11 @@ const Assembly = () => {
 
     const elements = childSubsytemWithoutMnemonics
       ? childSubsytemWithoutMnemonics.assemblyDevices.map(
-          ({ name, status }, index) => ({
+          ({ name, status, label }, index) => ({
             data: {
               id: index,
-              label: name,
+              name: name,
+              label: label,
               status: status,
             },
           })

@@ -33,5 +33,6 @@ export const generateAssemblyDevice = (
     status: status,
     childSubsystemParent: childSubsystem,
     mnemoicIdMap: mnemoicIdMap,
+    label: "Default"
   };
 };

@@ -19,6 +19,7 @@ export type AssemblyDevice = {
   status: Status;
   childSubsystemParent: string;
   mnemoicIdMap: MnemonicIdMap;
+  label: string;
 };
 
 export type AssemblyDeviceOptions = {

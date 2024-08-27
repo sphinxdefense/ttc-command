@@ -108,6 +108,7 @@ export const TTCGRMProvider = ({ children, options }: TTCGRMProviderProps) => {
       contact_and_mission.commands = commands
       contact_and_mission.mnemonic_id_lookup = mnemonicsIdMap
       contact_and_mission.alerts = []
+      console.log(contact_and_mission)
       return new Array(contact_and_mission)
     }   
     ContactSetup().then((contact_and_mission: Array<Contact>) => {
