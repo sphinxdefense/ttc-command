@@ -126,26 +126,26 @@ const GlobalStatusBar = ({ appName }: { appName: string }) => {
           <RuxMonitoringIcon
             status={status1}
             icon="antenna-off"
-            label="Lion-A"
-            notifications={notifications1}
+            label="LUCKY"
+            notifications={0}
           />
           <RuxMonitoringIcon
             status={status2}
             icon="satellite-transmit"
-            label="Iron 4090"
-            notifications={notifications1}
+            label="nos3"
+            notifications={0}
           />
           <RuxMonitoringIcon
-            status={status3}
+            status="normal"
             icon="antenna-receive"
             label="Comms"
-            notifications={notifications2}
+            notifications={0}
           />
           <RuxMonitoringIcon
             status={status4}
             icon="processor"
             label="Software"
-            notifications={notifications3}
+            notifications={0}
           />
         </div>
       </RuxGlobalStatusBar>

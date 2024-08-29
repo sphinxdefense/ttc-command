@@ -1,6 +1,7 @@
 import { RuxCheckbox, RuxIcon, RuxTreeNode } from "@astrouxds/react";
 import { Mnemonic } from "../../../../../Data";
 import MnemonicPopUp from "./MnemonicPopUp";
+import { ErrorBoundary } from "react-error-boundary";
 
 type PropTypes = {
   stepNumber: number | string;
@@ -18,7 +19,8 @@ const MnemonicListItem = ({ stepNumber, slotNode, mnemonic }: PropTypes) => {
         <div className="pass-plan_mnemonic-wrapper">
           <RuxCheckbox className="pass-plan_checkbox" />
           {"Verify\u00A0"}
-          <MnemonicPopUp triggerValue={mnemonic.mnemonicId} data={mnemonic} />
+          <ErrorBoundary fallback={<div></div>}><MnemonicPopUp triggerValue={mnemonic.mnemonicId} data={mnemonic} /></ErrorBoundary>
+          
           {"\u00A0 = \u00A0"}
           {mnemonic.currentValue}
           {mnemonic.watched && (

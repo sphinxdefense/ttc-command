@@ -5,6 +5,7 @@ export type Command = {
     description: string,
     commandId: number
     mnemonics?: Mnemonic []
+    args?: string[]
 }
  
 // type AITCommnadArgumentDefinition = {

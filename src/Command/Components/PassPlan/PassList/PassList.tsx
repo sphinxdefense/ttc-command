@@ -27,8 +27,7 @@ const PassList = ({ commandList }: PropTypes) => {
                 <ExecutableListItem
                   key={index}
                   stepNumber={itemAmount + index}
-                  queueCommand={item.commandString}
-                  mnemonics={item.mnemonics || []}
+                  queueCommand={item}
                 />
               );
             })

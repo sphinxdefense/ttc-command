@@ -45,7 +45,7 @@ const LinkStatus = () => {
       <span slot="header">Link Status</span>
       <div>
         <span>
-          <RuxStatus status={status1} /> Lock
+          <RuxStatus status="normal" /> Lock
           <span className="total">{int1}</span>
         </span>
       </div>
@@ -58,14 +58,14 @@ const LinkStatus = () => {
         </span>
       </div>
       <div>Total Mnemonic Count: {mnemonicCount}</div>
-      <div>
+      {/* <div>
         <span>
           <RuxStatus status={status3} />
           VCC <span className="total">{int5}</span>
         </span>
-      </div>
+      </div> */}
 
-      <div>Bad CMD: {int6}</div>
+      {/* <div>Bad CMD: {int6}</div> */}
     </RuxContainer>
   );
 };

@@ -1,29 +1,32 @@
-import { RuxButton, RuxProgress, RuxIcon, RuxTreeNode } from "@astrouxds/react";
+import { RuxButton, RuxProgress, RuxIcon, RuxTreeNode, RuxInput } from "@astrouxds/react";
 import { useEffect, useMemo, useState } from "react";
 import MnemonicListItem from "../MnemonicListItem/MnemonicListItem";
 import { generateRandomNumberArray, getRandomInt } from "../../../../../utils";
-import { Mnemonic } from "../../../../../Data";
+import { Mnemonic,Command } from "../../../../../Data";
 import { useAppContext, ContextType } from "provider/useAppContext";
 
 type PropTypes = {
   stepNumber: number | string;
-  queueCommand: string;
-  mnemonics: Mnemonic[];
+  queueCommand: Command;
 };
 
 const ExecutableListItem = ({
   stepNumber,
   queueCommand,
-  mnemonics,
 }: PropTypes) => {
   const [value, setValue] = useState<number>(0);
   const [inProgress, setInProgress] = useState<boolean>(false);
   const [firstClick, setFirstClick] = useState<boolean>(false);
+  //const [argMap, setArgMap] = useState<Map<string,any>>(new Map());
   const timeout: number = 20
   const progressComplete: boolean = value >= 100;
   const numberArray = useMemo(() => {
     return generateRandomNumberArray(getRandomInt(2, 5));
   }, []);
+  const argMap: Map<number,any> = new Map() 
+  queueCommand.args?.map((item, index) => {
+    argMap.set(index,0)
+  })
 
   const { contact }: ContextType = useAppContext();
   useEffect(() => {
@@ -54,15 +57,18 @@ const ExecutableListItem = ({
     setInProgress(true);
     const data = new FormData();
     document.cookie = `sid=${contact.cookie}`
-    console.log(contact.cookie)
-    data.append("command", queueCommand);
-    console.log(data)
+    let com_str = queueCommand.commandString + " " + Array.from(argMap.values()).join(' ')
+    data.append("command", com_str);
     fetch('http://localhost:8001/cmd', {  // FIXME: hardcoded url and CORS
       method: 'POST',
       credentials: 'include',
       body: data
     }).catch((err) => {}).then(res => setInProgress(false)).catch((err) => {})
   };
+
+  const setInputValue = (idx:number,value:any) => {
+    argMap.set(idx,value)
+  }
 
   return (
     <RuxTreeNode expanded>
@@ -81,7 +87,18 @@ const ExecutableListItem = ({
         )}
 
         <div className="pass-plan_executable-progress-wrapper">
-          <div className="pass-plan_command-name">{queueCommand}</div>
+          <div className="pass-plan_command-name">{queueCommand.commandString}</div>
+          {queueCommand.args?.map((item, index) => (
+            <div className="pass-plan_progress-time">
+              <RuxInput
+                type="text"
+                placeholder={item}
+                onRuxinput={(e) => {
+                  setInputValue(index,e.target.value);
+                }}
+              />
+            </div>
+          ))}
           <div className="pass-plan_progress-time">
             <RuxProgress value={value} hideLabel />
             <RuxIcon icon="schedule" size="extra-small" />
@@ -89,7 +106,7 @@ const ExecutableListItem = ({
           </div>
         </div>
       </div>
-      {mnemonics.map((item, index) => (
+      {queueCommand.mnemonics?.map((item, index) => (
         <MnemonicListItem
           key={index}
           stepNumber={`${stepNumber}.${index + 1}`}
