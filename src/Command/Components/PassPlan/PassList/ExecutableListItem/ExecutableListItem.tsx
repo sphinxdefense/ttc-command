@@ -4,11 +4,14 @@ import MnemonicListItem from "../MnemonicListItem/MnemonicListItem";
 import { generateRandomNumberArray, getRandomInt } from "../../../../../utils";
 import { Mnemonic,Command } from "../../../../../Data";
 import { useAppContext, ContextType } from "provider/useAppContext";
+import { ar } from "@faker-js/faker";
 
 type PropTypes = {
   stepNumber: number | string;
   queueCommand: Command;
 };
+
+type InputMap = { [key: number]: any }
 
 const ExecutableListItem = ({
   stepNumber,
@@ -17,16 +20,17 @@ const ExecutableListItem = ({
   const [value, setValue] = useState<number>(0);
   const [inProgress, setInProgress] = useState<boolean>(false);
   const [firstClick, setFirstClick] = useState<boolean>(false);
-  //const [argMap, setArgMap] = useState<Map<string,any>>(new Map());
+  const [argMap, setArgMap] = useState<InputMap>({})
   const timeout: number = 20
   const progressComplete: boolean = value >= 100;
   const numberArray = useMemo(() => {
     return generateRandomNumberArray(getRandomInt(2, 5));
   }, []);
-  const argMap: Map<number,any> = new Map() 
-  queueCommand.args?.map((item, index) => {
-    argMap.set(index,0)
-  })
+  // const tmpMap: InputMap = {}
+  // queueCommand.args?.map((item, index) => {
+  //   tmpMap[index] = 0
+  // })
+  // setArgMap(tmpMap)
 
   const { contact }: ContextType = useAppContext();
   useEffect(() => {
@@ -57,7 +61,8 @@ const ExecutableListItem = ({
     setInProgress(true);
     const data = new FormData();
     document.cookie = `sid=${contact.cookie}`
-    let com_str = queueCommand.commandString + " " + Array.from(argMap.values()).join(' ')
+    //console.log(argMap)
+    let com_str = queueCommand.commandString + " " + Array.from(Object.values(argMap)).join(' ')
     data.append("command", com_str);
     fetch('http://localhost:8001/cmd', {  // FIXME: hardcoded url and CORS
       method: 'POST',
@@ -67,7 +72,10 @@ const ExecutableListItem = ({
   };
 
   const setInputValue = (idx:number,value:any) => {
-    argMap.set(idx,value)
+    let updateField: InputMap = {}
+    updateField[idx] = value
+    setArgMap({...argMap,...updateField})
+
   }
 
   return (
