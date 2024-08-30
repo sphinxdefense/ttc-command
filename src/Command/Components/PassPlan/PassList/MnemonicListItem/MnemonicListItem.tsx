@@ -20,9 +20,7 @@ const MnemonicListItem = ({ stepNumber, slotNode, mnemonic }: PropTypes) => {
           <RuxCheckbox className="pass-plan_checkbox" />
           {"Verify\u00A0"}
           <ErrorBoundary fallback={<div></div>}><MnemonicPopUp triggerValue={mnemonic.mnemonicId} data={mnemonic} /></ErrorBoundary>
-          
-          {"\u00A0 = \u00A0"}
-          {mnemonic.currentValue}
+          {"\u00A0Changed"}
           {mnemonic.watched && (
             <div className="pass-plan_mnemonic-watching">
               <RuxIcon icon="visibility" size="extra-small" />
