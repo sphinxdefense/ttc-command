@@ -24,6 +24,7 @@ const PassPlan = () => {
     commandId: number;
     commandString: string;
     description: string;
+    mnemonics: Map<string,Mnemonic>
   }) => {
     if (!commandListItem) return;
     //console.log(commandList,commandListItem.commandString)

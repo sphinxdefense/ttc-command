@@ -293,11 +293,9 @@ export class TTC_GRM_Service {
         })
       })
       commands?.forEach((command) => {
-        command.mnemonics?.forEach((c_mnemonic) => {
-          if (c_mnemonic.id === mnemonic.id){
-            c_mnemonic.currentValue = mnemonic.currentValue
-          }
-        })
+        if(command.mnemonics.has(mnemonic.id)){
+          command.mnemonics.set(mnemonic.id,mnemonic)
+        }
       }) 
     })
     if (frame_count && mnemonic_count){

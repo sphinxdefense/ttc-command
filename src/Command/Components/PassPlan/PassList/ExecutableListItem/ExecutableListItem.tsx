@@ -114,12 +114,12 @@ const ExecutableListItem = ({
           </div>
         </div>
       </div>
-      {queueCommand.mnemonics?.map((item, index) => (
+      {Array.from(queueCommand.mnemonics,([key,value]) => ({key,value})).map(({key,value}, index) => (
         <MnemonicListItem
           key={index}
           stepNumber={`${stepNumber}.${index + 1}`}
           slotNode={true}
-          mnemonic={item}
+          mnemonic={value}
         />
       ))}
     </RuxTreeNode>

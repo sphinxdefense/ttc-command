@@ -4,7 +4,7 @@ export type Command = {
     commandString: string,
     description: string,
     commandId: number
-    mnemonics?: Mnemonic []
+    mnemonics: Map<string,Mnemonic>;
     args?: string[]
 }
  

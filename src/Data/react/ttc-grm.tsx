@@ -97,11 +97,11 @@ export const TTCGRMProvider = ({ children, options }: TTCGRMProviderProps) => {
       });
       const commands: Command[] = [];
       AITCommandDefinitions.forEach((commandDef) => {
-        commands.push({...commandDef,mnemonics: []})
+        commands.push({...commandDef,mnemonics: new Map()})
         commandDef.mnemonicIds.forEach((mnemonicId) => {
           let mnemonic = mnemonicsIdMap.get(mnemonicId)
           if (mnemonic)
-            commands.at(-1)?.mnemonics?.push(mnemonic)
+            commands.at(-1)?.mnemonics.set(mnemonicId,mnemonic)
         })
       })
 
