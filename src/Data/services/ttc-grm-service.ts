@@ -22,7 +22,8 @@ import type {
   //ModifyMnemonicParamsNoLookup,
   ModifyMnemonicParams,
   Subsystem,
-  MnemonicIdMap
+  MnemonicIdMap,
+  Command
 } from '../types';
 import * as _ from 'lodash';
 import { updateSubsystemWithMnemonic} from '../utils';
@@ -274,6 +275,7 @@ export class TTC_GRM_Service {
       throw new Error(`Contact with id ${ref_id} does not exist`);
     let subsystems: Subsystem[] = currentContact.subsystems
     let all_mnemonics_lookup: MnemonicIdMap | undefined = currentContact.mnemonic_id_lookup
+    let commands: Command[] | undefined = currentContact.commands
 
     update_mnemonics.forEach((mnemonic) => {
       if(all_mnemonics_lookup){
@@ -289,6 +291,13 @@ export class TTC_GRM_Service {
               
           })
         })
+      })
+      commands?.forEach((command) => {
+        command.mnemonics?.forEach((c_mnemonic) => {
+          if (c_mnemonic.id === mnemonic.id){
+            c_mnemonic.currentValue = mnemonic.currentValue
+          }
+        })
       }) 
     })
     if (frame_count && mnemonic_count){
@@ -296,6 +305,7 @@ export class TTC_GRM_Service {
         id: currentContact.id,
         subsystems: subsystems,
         mnemonic_id_lookup: all_mnemonics_lookup,
+        commands: commands,
         frame_count: ((currentContact.frame_count || 0) + frame_count) % mod_val,
         mnemonic_count: ((currentContact.mnemonic_count || 0) + mnemonic_count) & mod_val,
       });
