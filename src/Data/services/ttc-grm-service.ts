@@ -28,6 +28,9 @@ import * as _ from 'lodash';
 import { updateSubsystemWithMnemonic} from '../utils';
 //import { useAppContext } from "../../provider/useAppContext";
 
+let buffer: AITMnemonics[] = new Array();
+let lock: boolean = false;
+
 
 const initialStore = {
   contacts: new Map(),
@@ -61,35 +64,60 @@ export class TTC_GRM_Service {
     }
     this._tlm_skt.addEventListener("message", event => {
       let api_mnemonic: AITMnemonics = JSON.parse(event.data);
-      let mnemonic: Mnemonic | null | undefined = null
-      let modified_mnemonics: Mnemonic[] = []; 
+      buffer.push(api_mnemonic)
       const currentContact = this._data.contacts.get(this._contact_id);
-      if (!currentContact)
-        return
-      for (const [key, value] of Object.entries(api_mnemonic.data)) {
-          if (currentContact.mnemonic_id_lookup){
-            mnemonic = currentContact.mnemonic_id_lookup.get(api_mnemonic.packet + '_' + key)
-          }
-          if (mnemonic != null){
-            if (mnemonic.currentValue != value){
-              let new_mnemonic: Mnemonic =  {
-                ...mnemonic,
-                currentValue: value
-              };
-              modified_mnemonics.push(new_mnemonic)
+      if(currentContact){
+        if(buffer.length > 1000){
+          console.log("clearing buffer")
+          buffer = []
+          lock = false
+        }
+        if (buffer.length > 100 && !lock){
+          lock = true
+          while(buffer.length){
+            
+            let packet = buffer.pop()
+            if (packet){
+              let mnemonic: Mnemonic | null | undefined = null
+              let modified_mnemonics: Mnemonic[] = []; 
+            
+              for (const [key, value] of Object.entries(packet.data)) {
+                  if (currentContact.mnemonic_id_lookup){
+                    mnemonic = currentContact.mnemonic_id_lookup.get(packet.packet + '_' + key)
+                  }
+                  if (mnemonic != null){
+                    if (mnemonic.currentValue != value){
+                      
+                      let new_mnemonic: Mnemonic =  {
+                        ...mnemonic,
+                        currentValue: value
+                      };
+                      modified_mnemonics.push(new_mnemonic)
+                    }
+                  }
+              }
+              //console.log(modified_mnemonics.length)
+              if (modified_mnemonics.length > 0){
+                this.modifyMnemonicsNoLookup(
+                  this._contact_id,
+                  modified_mnemonics,
+                  1,
+                  Object.keys(packet.data).length
+                )
+              }
             }
+
+
           }
+          lock = false
+        }
       }
-      this.modifyMnemonicsNoLookup(
-        this._contact_id,
-        modified_mnemonics,
-        1,
-        Object.keys(api_mnemonic.data).length
-      )
     });
+
     if (options?.initial && this._data.contacts.size === 0) {
       this._generateInitialData(options.initial,api_contact_array);
     }
+    
   }
 
   private _generateInitialData = (initial: number, api_contact_array: Array<Contact> = []) => {
@@ -244,8 +272,8 @@ export class TTC_GRM_Service {
     const currentContact = structuredClone(this._data.contacts.get(ref_id));
     if (!currentContact)
       throw new Error(`Contact with id ${ref_id} does not exist`);
-    let subsystems: Subsystem[] = structuredClone(currentContact.subsystems)
-    let all_mnemonics_lookup: MnemonicIdMap | undefined = structuredClone(currentContact.mnemonic_id_lookup)
+    let subsystems: Subsystem[] = currentContact.subsystems
+    let all_mnemonics_lookup: MnemonicIdMap | undefined = currentContact.mnemonic_id_lookup
 
     update_mnemonics.forEach((mnemonic) => {
       if(all_mnemonics_lookup){
