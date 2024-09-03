@@ -23,15 +23,18 @@ type PropTypes = {
 
 const MnemonicPopUp = ({ triggerValue, data }: PropTypes) => {
   const { modifyMnemonic } = useTTCGRMActions();
-  const [menmonicData, setMenmonicData] = useState<Array<any>>([]);
+  const [menmonicData, setMenmonicData] = useState<Array<any>>([data.currentValue]);
+  const { contact }: ContextType = useAppContext();
 
   const { toggleInvestigate, selectSubsystemsFromMnemonic }: ContextType =
     useAppContext();
 
 
   useEffect(() => {
-    setMenmonicData([...menmonicData,data.currentValue])
-  }, [data.currentValue]);
+    console.log(contact.mnemonic_id_lookup.get(data.id)?.currentValue)
+    setMenmonicData([...menmonicData,contact.mnemonic_id_lookup.get(data.id)?.currentValue])
+    
+  }, [contact.mnemonic_id_lookup.get(data.id)?.currentValue]);
 
   const handleSubsystemPassPlanClick = () => {
     selectSubsystemsFromMnemonic(data);
