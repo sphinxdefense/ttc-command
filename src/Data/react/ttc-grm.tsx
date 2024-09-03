@@ -39,7 +39,7 @@ export const TTCGRMProvider = ({ children, options }: TTCGRMProviderProps) => {
   useEffect(() => {
     const ContactSetup = async () => {
       const [api_contact, api_mission,api_tlm,api_cookie] = await Promise.all([
-                                              fetch('http://localhost:8000/v1/contact?contact_id=296017c1-2fa9-4e12-9ef2-56d73680feaa'), // FIXME: hard coded contact id for now
+                                              fetch('http://localhost:8001/contact'), // FIXME: hard coded contact id for now
                                               fetch('http://localhost:8001/missions'),
                                               fetch('http://localhost:8001/tlm/dict'),
                                               fetch('http://localhost:8001/')
