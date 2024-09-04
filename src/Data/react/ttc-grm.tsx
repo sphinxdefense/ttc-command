@@ -38,8 +38,12 @@ export const TTCGRMProvider = ({ children, options }: TTCGRMProviderProps) => {
   const [provier, setProvider] = useState(<div></div>)
   useEffect(() => {
     const ContactSetup = async () => {
-      const [api_cookie,api_contact, api_mission,api_tlm,] = await Promise.all([
-                                              fetch('http://ait:8001/'),
+      const [api_cookie] = await Promise.all([fetch('http://ait:8001/')]);
+      const cookie = await api_cookie.json();
+      document.cookie = `sid=${cookie}`;
+
+
+      const [api_contact, api_mission,api_tlm,] = await Promise.all([
                                               fetch('http://ait:8001/contact'), // FIXME: hard coded contact id for now
                                               fetch('http://ait:8001/missions'),
                                               fetch('http://ait:8001/tlm/dict')
@@ -49,10 +53,9 @@ export const TTCGRMProvider = ({ children, options }: TTCGRMProviderProps) => {
       const contact =  await api_contact.json()
       const missions =  await api_mission.json()
       //const limits =  await api_limits.json()
-      const cookie = await api_cookie.json()
       const tlm =  await api_tlm.json()
 
-      document.cookie = `sid=${cookie}`
+      
       let contact_and_mission = {...contact,...missions[0][contact.satellite]}
       contact_and_mission.cookie = cookie
       let AITCommandDefinitions: AITCommandDefinition[] = missions[0][contact.satellite].commands
