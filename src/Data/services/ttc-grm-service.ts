@@ -45,12 +45,13 @@ export class TTC_GRM_Service {
   private _interval: number;
   private _intervalId?: NodeJS.Timeout = undefined;
   private _limit: number;
-  private _tlm_skt: WebSocket = new WebSocket("http://ait:8001/tlm/realtime");
+  private _tlm_skt: any = null;
   private _contact_id: string = '';
 
 
   constructor(options?: ContactsServiceOptions, api_contact_array: Array<Contact> = []) {    
     this.transformData = this.transformData.bind(this);
+    this._tlm_skt = new WebSocket("http://ait:8001/tlm/realtime")
     this._contactOptions = {
       alertsPercentage: options?.alertsPercentage,
       dateRef: options?.dateRef,
@@ -63,7 +64,7 @@ export class TTC_GRM_Service {
     if (api_contact_array.length > 0) {
       this._contact_id = api_contact_array[0].id //TODO: assume one contact for now
     }
-    this._tlm_skt.addEventListener("message", event => {
+    this._tlm_skt.addEventListener("message", (event: any) => {
       let api_mnemonic: AITMnemonics = JSON.parse(event.data);
       buffer.push(api_mnemonic)
       const currentContact = this._data.contacts.get(this._contact_id);
