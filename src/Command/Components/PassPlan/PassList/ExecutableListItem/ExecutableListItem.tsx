@@ -64,7 +64,7 @@ const ExecutableListItem = ({
     //console.log(argMap)
     let com_str = queueCommand.commandString + " " + Array.from(Object.values(argMap)).join(' ')
     data.append("command", com_str);
-    fetch('http://ait:8001/cmd', {  // FIXME: hardcoded url and CORS
+    fetch('http://localhost:8001/cmd', {  // FIXME: hardcoded url and CORS
       method: 'POST',
       credentials: 'include',
       body: data
