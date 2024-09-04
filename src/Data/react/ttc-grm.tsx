@@ -57,7 +57,7 @@ export const TTCGRMProvider = ({ children, options }: TTCGRMProviderProps) => {
 
       
       let contact_and_mission = {...contact,...missions[0][contact.satellite]}
-      contact_and_mission.cookie = cookie
+      //contact_and_mission.cookie = cookie
       let AITCommandDefinitions: AITCommandDefinition[] = missions[0][contact.satellite].commands
       let contact_id = contact_and_mission.id;
 
