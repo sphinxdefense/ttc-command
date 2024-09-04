@@ -56,7 +56,7 @@ export type Contact = {
   alerts: Alert[];
   mnemonic_id_lookup: Map<string,Mnemonic>;
   commands?: Command[]
-  cookie?: number | string;
+  //cookie?: number | string;
   frame_count?: number;
   mnemonic_count?: number;
 };

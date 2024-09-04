@@ -32,7 +32,7 @@ const ExecutableListItem = ({
   // })
   // setArgMap(tmpMap)
 
-  const { contact }: ContextType = useAppContext();
+  //const { contact }: ContextType = useAppContext();
   useEffect(() => {
     let interval: any;
     if (inProgress) {
@@ -60,7 +60,7 @@ const ExecutableListItem = ({
   const handleExecuteButtonClick = () => {
     setInProgress(true);
     const data = new FormData();
-    document.cookie = `sid=${contact.cookie}`
+    //document.cookie = `sid=${contact.cookie}`
     //console.log(argMap)
     let com_str = queueCommand.commandString + " " + Array.from(Object.values(argMap)).join(' ')
     data.append("command", com_str);

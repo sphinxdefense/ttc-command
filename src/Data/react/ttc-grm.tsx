@@ -39,8 +39,8 @@ export const TTCGRMProvider = ({ children, options }: TTCGRMProviderProps) => {
   useEffect(() => {
     const ContactSetup = async () => {
       const [api_cookie] = await Promise.all([fetch('http://localhost:8001/')]);
-      const cookie = await api_cookie.json();
-      document.cookie = `sid=${cookie}`;
+      // const cookie = await api_cookie.json();
+      // document.cookie = `sid=${cookie}`;
 
 
       const [api_contact, api_mission,api_tlm,] = await Promise.all([
