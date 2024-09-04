@@ -45,7 +45,7 @@ export class TTC_GRM_Service {
   private _interval: number;
   private _intervalId?: NodeJS.Timeout = undefined;
   private _limit: number;
-  private _tlm_skt: WebSocket = new WebSocket("http://localhost:8001/tlm/realtime");
+  private _tlm_skt: WebSocket = new WebSocket("http://ait:8001/tlm/realtime");
   private _contact_id: string = '';
 
 
