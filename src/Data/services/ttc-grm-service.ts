@@ -51,7 +51,7 @@ export class TTC_GRM_Service {
 
   constructor(options?: ContactsServiceOptions, api_contact_array: Array<Contact> = []) {    
     this.transformData = this.transformData.bind(this);
-    this._tlm_skt = new WebSocket("http://ait:8001/tlm/realtime")
+    //this._tlm_skt = new WebSocket("http://ait:8001/tlm/realtime")
     this._contactOptions = {
       alertsPercentage: options?.alertsPercentage,
       dateRef: options?.dateRef,
@@ -64,57 +64,57 @@ export class TTC_GRM_Service {
     if (api_contact_array.length > 0) {
       this._contact_id = api_contact_array[0].id //TODO: assume one contact for now
     }
-    this._tlm_skt.addEventListener("message", (event: any) => {
-      let api_mnemonic: AITMnemonics = JSON.parse(event.data);
-      buffer.push(api_mnemonic)
-      const currentContact = this._data.contacts.get(this._contact_id);
-      if(currentContact){
-        if(buffer.length > 1000){
-          console.log("clearing buffer")
-          buffer = []
-          lock = false
-        }
-        if (buffer.length > 100 && !lock){
-          lock = true
-          while(buffer.length){
+    // this._tlm_skt.addEventListener("message", (event: any) => {
+    //   let api_mnemonic: AITMnemonics = JSON.parse(event.data);
+    //   buffer.push(api_mnemonic)
+    //   const currentContact = this._data.contacts.get(this._contact_id);
+    //   if(currentContact){
+    //     if(buffer.length > 1000){
+    //       console.log("clearing buffer")
+    //       buffer = []
+    //       lock = false
+    //     }
+    //     if (buffer.length > 100 && !lock){
+    //       lock = true
+    //       while(buffer.length){
             
-            let packet = buffer.pop()
-            if (packet){
-              let mnemonic: Mnemonic | null | undefined = null
-              let modified_mnemonics: Mnemonic[] = []; 
+    //         let packet = buffer.pop()
+    //         if (packet){
+    //           let mnemonic: Mnemonic | null | undefined = null
+    //           let modified_mnemonics: Mnemonic[] = []; 
             
-              for (const [key, value] of Object.entries(packet.data)) {
-                  if (currentContact.mnemonic_id_lookup){
-                    mnemonic = currentContact.mnemonic_id_lookup.get(packet.packet + '_' + key)
-                  }
-                  if (mnemonic != null){
-                    if (mnemonic.currentValue != value){
+    //           for (const [key, value] of Object.entries(packet.data)) {
+    //               if (currentContact.mnemonic_id_lookup){
+    //                 mnemonic = currentContact.mnemonic_id_lookup.get(packet.packet + '_' + key)
+    //               }
+    //               if (mnemonic != null){
+    //                 if (mnemonic.currentValue != value){
                       
-                      let new_mnemonic: Mnemonic =  {
-                        ...mnemonic,
-                        currentValue: value
-                      };
-                      modified_mnemonics.push(new_mnemonic)
-                    }
-                  }
-              }
-              //console.log(modified_mnemonics.length)
-              if (modified_mnemonics.length > 0){
-                this.modifyMnemonicsNoLookup(
-                  this._contact_id,
-                  modified_mnemonics,
-                  1,
-                  Object.keys(packet.data).length
-                )
-              }
-            }
+    //                   let new_mnemonic: Mnemonic =  {
+    //                     ...mnemonic,
+    //                     currentValue: value
+    //                   };
+    //                   modified_mnemonics.push(new_mnemonic)
+    //                 }
+    //               }
+    //           }
+    //           //console.log(modified_mnemonics.length)
+    //           if (modified_mnemonics.length > 0){
+    //             this.modifyMnemonicsNoLookup(
+    //               this._contact_id,
+    //               modified_mnemonics,
+    //               1,
+    //               Object.keys(packet.data).length
+    //             )
+    //           }
+    //         }
 
 
-          }
-          lock = false
-        }
-      }
-    });
+    //       }
+    //       lock = false
+    //     }
+    //   }
+    // });
 
     if (options?.initial && this._data.contacts.size === 0) {
       this._generateInitialData(options.initial,api_contact_array);
