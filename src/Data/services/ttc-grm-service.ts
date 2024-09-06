@@ -74,7 +74,7 @@ export class TTC_GRM_Service {
           buffer = []
           lock = false
         }
-        if (buffer.length > 100 && !lock){
+        if (buffer.length > 1 && !lock){
           lock = true
           while(buffer.length){
             
@@ -88,7 +88,7 @@ export class TTC_GRM_Service {
                     mnemonic = currentContact.mnemonic_id_lookup.get(packet.packet + '_' + key)
                   }
                   if (mnemonic != null){
-                    if (mnemonic.currentValue != value){
+                    if (mnemonic.currentValue != value && packet.packet + '_' + key === "REACTION_WHEEL_HK_TLM"){ // FIXME: filter update values for demo until performance issues can be addressed
                       
                       let new_mnemonic: Mnemonic =  {
                         ...mnemonic,
